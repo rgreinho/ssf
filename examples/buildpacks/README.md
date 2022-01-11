@@ -50,3 +50,35 @@ cosign verify-attestation --key k8s://tekton-chains/signing-secrets "${DOCKER_IM
 ## Links
 
 * Buildpacks: <https://buildpacks.io/>
+
+## Dual backend setup
+
+```bash
+# From SSF root folder.
+make setup-minikube setup-tekton-chains tekton-generate-keys # Removed chains setup from tekton task
+
+# In another teminal.
+./platform/05-minikube-registry-proxy.sh
+
+# In chains repository.
+ko apply -f config/
+
+# Back to SSF root folder.
+make example-buildpacks
+
+# Wait for completion.
+# Ensure it has been signed.
+tkn tr describe --last -o json | jq -r '.metadata.annotations["chains.tekton.dev/signed"]'
+
+# Retrieve useful values.
+IMAGE_URL=$(tkn tr describe --last -o  jsonpath='{.status.taskResults[?(@.name=="APP_IMAGE_URL")].value}')
+TASKRUN_UID=$(tkn tr describe --last -o  jsonpath='{.metadata.uid}')
+
+# Use cosign to verify OCI sig + att.
+cosign verify --key k8s://tekton-chains/signing-secrets ${IMAGE_URL}
+cosign verify-attestation --key k8s://tekton-chains/signing-secrets ${IMAGE_URL}
+
+# Verify the sig + att stored the taskrun.
+tkn tr describe --last -o  jsonpath='{.metadata.annotations["chains.tekton.dev/payload-taskrun-$TASKRUN_UID"]'
+tkn tr describe --last -o  jsonpath='{.metadata.annotations["chains.tekton.dev/signature-taskrun-$TASKRUN_UID"]'
+```
