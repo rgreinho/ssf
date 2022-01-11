@@ -82,6 +82,6 @@ cosign verify --key k8s://tekton-chains/signing-secrets ${IMAGE_URL}
 cosign verify-attestation --key k8s://tekton-chains/signing-secrets ${IMAGE_URL}
 
 # Verify the sig + att stored the taskrun.
-tkn tr describe --last -o  jsonpath='{.metadata.annotations["chains.tekton.dev/payload-taskrun-$TASKRUN_UID"]'
-tkn tr describe --last -o  jsonpath='{.metadata.annotations["chains.tekton.dev/signature-taskrun-$TASKRUN_UID"]'
+tkn tr describe --last -o jsonpath="{.metadata.annotations.chains.tekton.dev/payload-taskrun-$TASKRUN_UID}"
+tkn tr describe --last -o jsonpath="{.metadata.annotations.chains.tekton.dev/signature-taskrun-$TASKRUN_UID}"
 ```
