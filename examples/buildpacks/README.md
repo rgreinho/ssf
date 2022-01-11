@@ -58,10 +58,10 @@ cosign verify-attestation --key k8s://tekton-chains/signing-secrets "${DOCKER_IM
 make setup-minikube setup-tekton-chains # Removed chains setup from tekton task
 
 # In another teminal.
-./platform/05-minikube-registry-proxy.sh
+# ./platform/05-minikube-registry-proxy.sh
 
 # In chains repository.
-export KO_DOCKER_REPO=http://localhost:8888/chains
+export KO_DOCKER_REPO=rgreinho
 ko apply -f config/
 
 # Back to SSF root folder.
@@ -82,6 +82,9 @@ cosign verify --key k8s://tekton-chains/signing-secrets ${IMAGE_URL}
 cosign verify-attestation --key k8s://tekton-chains/signing-secrets ${IMAGE_URL}
 
 # Verify the sig + att stored the taskrun.
-tkn tr describe --last -o jsonpath="{.metadata.annotations.chains.tekton.dev/payload-taskrun-$TASKRUN_UID}"
-tkn tr describe --last -o jsonpath="{.metadata.annotations.chains.tekton.dev/signature-taskrun-$TASKRUN_UID}"
+tkn tr describe --last -o jsonpath="{.metadata.annotations.chains\.tekton\.dev/payload-taskrun-$TASKRUN_UID}" | base64 -d | jq
+tkn tr describe --last -o jsonpath="{.metadata.annotations.chains\.tekton\.dev/signature-taskrun-$TASKRUN_UID}" | base64 -d | jq
+
+# Verify annotations with cosign.
+
 ```
