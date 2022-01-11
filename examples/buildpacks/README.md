@@ -64,6 +64,7 @@ make setup-minikube setup-tekton-chains tekton-generate-keys # Removed chains se
 ko apply -f config/
 
 # Back to SSF root folder.
+kubectl patch configmap chains-config -n tekton-chains --patch-file platform/components/tekton/chains/patch_config_dual_backend.yaml
 make example-buildpacks
 
 # Wait for completion.
