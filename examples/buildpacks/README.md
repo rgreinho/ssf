@@ -55,25 +55,27 @@ cosign verify-attestation --key k8s://tekton-chains/signing-secrets "${DOCKER_IM
 
 ```bash
 # From SSF root folder.
-make setup-minikube setup-tekton-chains tekton-generate-keys # Removed chains setup from tekton task
+make setup-minikube setup-tekton-chains # Removed chains setup from tekton task
 
 # In another teminal.
 ./platform/05-minikube-registry-proxy.sh
 
 # In chains repository.
+export KO_DOCKER_REPO=http://localhost:8888/chains
 ko apply -f config/
 
 # Back to SSF root folder.
 kubectl patch configmap chains-config -n tekton-chains --patch-file platform/components/tekton/chains/patch_config_dual_backend.yaml
+make tekton-generate-keys
 make example-buildpacks
 
 # Wait for completion.
 # Ensure it has been signed.
-tkn tr describe --last -o json | jq -r '.metadata.annotations["chains.tekton.dev/signed"]'
+tkn tr describe --last -o jsonpath='{.metadata.annotations.chains\.tekton\.dev/signed}'
 
 # Retrieve useful values.
-IMAGE_URL=$(tkn tr describe --last -o  jsonpath='{.status.taskResults[?(@.name=="APP_IMAGE_URL")].value}')
-TASKRUN_UID=$(tkn tr describe --last -o  jsonpath='{.metadata.uid}')
+export IMAGE_URL=$(tkn tr describe --last -o  jsonpath='{.status.taskResults[?(@.name=="APP_IMAGE_URL")].value}')
+export TASKRUN_UID=$(tkn tr describe --last -o  jsonpath='{.metadata.uid}')
 
 # Use cosign to verify OCI sig + att.
 cosign verify --key k8s://tekton-chains/signing-secrets ${IMAGE_URL}
