@@ -35,7 +35,7 @@ registry-proxy: ## Forward the minikube registry to the host
 .PHONY: setup-tekton-chains
 setup-tekton-chains: ## Setup a Tekton CD with Chains.
 	bash platform/10-tekton-setup.sh
-	bash platform/11-tekton-chains.sh
+	# bash platform/11-tekton-chains.sh
 
 .PHONY: tekton-generate-keys
 tekton-generate-keys: ## Generate key pair for Tekton.

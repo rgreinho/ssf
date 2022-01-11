@@ -33,3 +33,4 @@ case "${TKN_CHAINS_FORMAT}" in
     ;;
 esac
 
+# kubectl patch configmap chains-config -n tekton-chains --patch-file /Users/rgreinhofer/projects/thesecuresoftwarefactory/ssf/platform/components/tekton/chains/patch_config_dual_backend.yaml
